@@ -67,7 +67,8 @@ def main():
         for (name, sensor) in sensors.items():
             try:
                 sensor_reading = sensor.read()
-            except:
+            except Exception as e:
+                print(f'got error `{type(e).__name__}: {e}` while reading `{name}`')
                 continue
 
             for (metric, value) in sensor_reading.items():
