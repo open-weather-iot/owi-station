@@ -1,10 +1,10 @@
-from machine import Pin
 import time
+from machine import Pin
 import micropython
 
 from util.bus import SPI, I2C
 
-from src.cpu_temperature import CPUTemperature
+from src.sys_stats import SYSStats
 from src.humidity_hdc1080 import HumidityHDC1080
 from src.pressure_bme680 import PressureBME680
 from src.temperature_pt100_max31865 import TemperaturePT100MAX31865
@@ -21,16 +21,14 @@ def main():
     # ---------------------------------------
     reset_pin     = Pin(0, Pin.IN, Pin.PULL_DOWN)
     calibrate_pin = Pin(0, Pin.IN, Pin.PULL_DOWN)
-    led_internal  = Pin(25, Pin.OUT)
-    #led_internal  = Pin('LED', Pin.OUT)
+    led_internal  = Pin('LED', Pin.OUT)
 
     led_internal.value(1)
 
-    read_interval_ms = 1000 
+    read_interval_ms = 1000
 
     sensors = {
-        #'SYS/power_supply/voltage': ,  # TODO: filipe!
-        'SYS/CPU/temperature': CPUTemperature(),
+        'SYS': SYSStats(),
         'HDC1080': HumidityHDC1080(I2C(bus=0)),
         'BME680': PressureBME680(I2C(bus=0)),
         'PT100': TemperaturePT100MAX31865(SPI(port=1)),
@@ -63,7 +61,12 @@ def main():
         readings = {}
 
         for (name, sensor) in sensors.items():
-            for (metric, value) in sensor.read().items():
+            try:
+                sensor_reading = sensor.read()
+            except:
+                continue
+
+            for (metric, value) in sensor_reading.items():
                 readings[f'{name}/{metric}'] = value
 
         print(readings)

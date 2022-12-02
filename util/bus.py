@@ -16,8 +16,7 @@ class SPI:
         if port not in SPI.PORTS:
             raise Exception(f'unknown SPI port id {port}')
 
-        self._cs = Pin(SPI.PORTS[port]['cs_pin'], mode=Pin.OUT)
-        self._cs.value(SPI.DESELECT)
+        self._cs = Pin(SPI.PORTS[port]['cs_pin'], mode=Pin.OUT, value=SPI.DESELECT)
 
         self._spi = _SPI(
             SPI.PORTS[port]['spi_id'], 
@@ -55,11 +54,11 @@ class SPI:
 # reference: https://docs.micropython.org/en/latest/library/machine.I2C.html
 def I2C(bus):
     BUSES = {
-        0: { 'i2c_id': 0, 'scl_pin': 21, 'sda_pin': 20 },
-        1: { 'i2c_id': 0, 'scl_pin': 21, 'sda_pin': 20 },
+        0: { 'i2c_id': 1, 'sda_pin': 6, 'scl_pin': 7 },
+        1: { 'i2c_id': 0, 'sda_pin': 20, 'scl_pin': 21 },
     }
 
     if bus not in BUSES:
         raise Exception(f'unknown I2C bus id {bus}')
 
-    return _I2C(id=BUSES[bus]['i2c_id'], scl=Pin(BUSES[bus]['scl_pin']), sda=Pin(BUSES[bus]['sda_pin']))
+    return _I2C(id=BUSES[bus]['i2c_id'], sda=Pin(BUSES[bus]['sda_pin']), scl=Pin(BUSES[bus]['scl_pin']), freq=400000)
