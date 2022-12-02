@@ -1,8 +1,12 @@
 import time
+import json
 from machine import Pin
 import micropython
 
 from util.bus import SPI, I2C
+
+from util.lora_communication import LoRaCommunication
+import lora_params
 
 from src.sys_stats import SYSStats
 from src.humidity_hdc1080 import HumidityHDC1080
@@ -26,6 +30,8 @@ def main():
     led_internal.value(1)
 
     read_interval_ms = 1000
+
+    lora = LoRaCommunication(SPI(port=11), device_addr=lora_params.device_addr, network_key=lora_params.network_key, app_key=lora_params.app_key)
 
     sensors = {
         'SYS': SYSStats(),
@@ -69,6 +75,8 @@ def main():
             for (metric, value) in sensor_reading.items():
                 readings[f'{name}/{metric}'] = value
 
+        #lora.send(bytes(json.dumps(readings), encoding='utf8'))
+        #lora.send(json.dumps(readings))
         print(readings)
 
         led_internal.toggle() # internal led toggle
