@@ -31,13 +31,13 @@ def main():
 
     read_interval_ms = 1000
 
-    lora = LoRaCommunication(SPI(port=11), device_addr=lora_params.device_addr, network_key=lora_params.network_key, app_key=lora_params.app_key)
+    lora = LoRaCommunication(SPI(port='INTERNAL_RFM95W'), device_addr=lora_params.device_addr, network_key=lora_params.network_key, app_key=lora_params.app_key)
 
     sensors = {
         'SYS': SYSStats(),
         'HDC1080': HumidityHDC1080(I2C(bus=0)),
         'BME680': PressureBME680(I2C(bus=0)),
-        'PT100': TemperaturePT100MAX31865(SPI(port=1)),
+        'PT100': TemperaturePT100MAX31865(SPI(port='INTERNAL_MAX31865')),
         'HMC5883L/0': WindDirectionHMC5883L(I2C(bus=0)),
         'HMC5883L/1': WindSpeedHMC5883L(I2C(bus=0)),
     }
