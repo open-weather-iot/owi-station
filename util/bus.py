@@ -28,7 +28,7 @@ class SPI:
 
     def __enter__(self):
         self.select()
-        return self
+        return self._spi
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.deselect()
@@ -38,17 +38,6 @@ class SPI:
 
     def deselect(self):
         self._cs.value(SPI.DESELECT)
-
-    def read(self, nbytes, *, auto_select=False):
-        if auto_select: self.select()
-        value = self._spi.read(nbytes)
-        if auto_select: self.deselect()
-        return value
-
-    def write(self, buf, *, auto_select=False):
-        if auto_select: self.select()
-        self._spi.write(buf)
-        if auto_select: self.deselect()
 
 # TODO
 # reference: https://docs.micropython.org/en/latest/library/machine.I2C.html

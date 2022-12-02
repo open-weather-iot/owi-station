@@ -51,7 +51,8 @@ class TemperaturePT100MAX31865:
         buf = bytearray(2)
         buf[0] = self.MAX31865_REG_WRITE_CONFIG   # config write address
         buf[1] = config
-        self.spi_bus.write(buf, auto_select=True) # write config
+        with self.spi_bus as spi:
+            spi.write(buf) # write config
 
         self.RefR = 424.0                         # Rref measured with multimeter on MAX31865. *May be different a little different for other boards
         self.R0  = 100.0                          # Resistance for 0ºC
@@ -64,7 +65,7 @@ class TemperaturePT100MAX31865:
 
         return {
             #'status': status,
-            'temperature': { 'raw' : { 'adc': raw,'resistance': resistance }, 'value': temperature, 'unit': 'ºC' },
+            'temperature': { 'raw' : { 'adc': raw, 'resistance': resistance }, 'value': temperature, 'unit': 'ºC' },
         }
 
     def _get_status(self,raw):      
@@ -74,10 +75,10 @@ class TemperaturePT100MAX31865:
         return status 
 
     def _get_raw(self):
-        with self.spi_bus: # automatic enable and disable management
-            self.spi_bus.write(bytes([0x01])) # first read address
-            MSB = self.spi_bus.read(1)           # multi-byte transfer
-            LSB = self.spi_bus.read(1)
+        with self.spi_bus as spi: # automatic enable and disable management
+            spi.write(bytes([0x01])) # first read address
+            MSB = spi.read(1)           # multi-byte transfer
+            LSB = spi.read(1)
 
         raw = (MSB[0] << 8) + LSB[0]
         raw = raw >> 1

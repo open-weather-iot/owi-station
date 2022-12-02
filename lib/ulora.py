@@ -298,9 +298,9 @@ class uLoRa:
         # Set MSB to 0 (read)
         # 0x7F = 01111111
         self._BUFFER[0] = address & 0x7F
-        with self._spi_bus:
-            self._spi_bus.write(self._BUFFER[0:1])
-            self._spi_bus.readinto(buf)
+        with self._spi_bus as spi:
+            spi.write(self._BUFFER[0:1])
+            spi.readinto(buf)
 
     def _read_u8(self, address):
         """ Read a single byte from the provided SX1276 register and return it.
@@ -315,4 +315,5 @@ class uLoRa:
         # 0x80 = 1000000
         self._BUFFER[0] = (address | 0x80)  
         self._BUFFER[1] = val
-        self._spi_bus.write(self._BUFFER[0:2], auto_select=True)
+        with self._spi_bus as spi:
+            spi.write(self._BUFFER[0:2])
