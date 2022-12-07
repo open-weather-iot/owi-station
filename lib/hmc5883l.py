@@ -62,8 +62,6 @@ class HMC5883L:
         self.data = array('B', [0] * 6)
 
     def calibrate(self):
-        return 1, 1, 0, 0
-
         X = []
         Y = []
 
@@ -119,8 +117,3 @@ class HMC5883L:
         minutes = round((heading - degrees) * 60)
 
         return degrees, minutes
-
-    def format_result(self, x, y, z):
-        degrees, minutes = self.heading(x, y)
-
-        return 'X: {:.4f}, Y: {:.4f}, Z: {:.4f}, Heading: {}° {}′ '.format(x, y, z, degrees, minutes)

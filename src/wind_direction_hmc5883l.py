@@ -7,18 +7,20 @@ class WindDirectionHMC5883L:
     # Campinas declination (-21,38)
     # averaged_samples = [1, 2, 4, 8]
     # sampling_rate_hz = [0.75, 1.5, 3, 7.5, 15, 30, 75]
-    def __init__(self, i2c_bus, *, averaged_samples='8', sampling_rate_hz='15', declination=(0,0)):
+    def __init__(self, i2c_bus, *, averaged_samples='8', sampling_rate_hz='15', declination=(0,0), xs=1, ys=1, xb=0, yb=0):
         self.sensor = HMC5883L(i2c_bus, averaged_samples=averaged_samples, sampling_rate_hz=sampling_rate_hz, gauss='1.3')
         self.declination = (declination[0] + declination[1] / 60) * math.pi / 180
         self.sampling_rate_hz = sampling_rate_hz
 
-    def calibrate(self):
-        # self.sampling_rate_hz
-        xs, ys, xb, yb = self.sensor.calibrate()
+        # calibration parameters
         self.xs = xs
         self.ys = ys
         self.xb = xb
         self.yb = yb
+
+    def calibrate(self):
+        # self.sampling_rate_hz
+        self.sensor.calibrate()
 
     def read(self):
         x, y, _z = sensor.read()
