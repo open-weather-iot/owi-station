@@ -23,7 +23,7 @@ import machine
 import utime
 import urandom
 import ubinascii
-import ulora_encryption
+import lib.ulora_encryption as ulora_encryption
 
 # SX1276 operating mode settings
 _MODE_SLEEP = const(0x00)
@@ -108,7 +108,7 @@ class uLoRa:
     # SPI write buffer
     _BUFFER = bytearray(2)
 
-    def __init__(self, spi_bus, irq, rst, ttn_config, datarate="SF7BW125", fport=1, channel=None):
+    def __init__(self, spi_bus, irq, rst, ttn_config, datarate="SF7BW125", fport=1, channel=None, debug=False):
         """ Interface for a Semtech SX1276 module. Sets module up for sending to
         The Things Network.
         """
@@ -130,18 +130,19 @@ class uLoRa:
         self._modemcfg = None
         self.set_datarate(datarate)
         self._fport = fport
+        self.debug = debug
         # Set regional frequency plan
         if "US" in ttn_config.country:
-            from ttn_usa import TTN_FREQS
+            from lib.ttn_usa import TTN_FREQS
             self._frequencies = TTN_FREQS
         elif ttn_config.country == "AS":
-            from ttn_as import TTN_FREQS
+            from lib.ttn_as import TTN_FREQS
             self._frequencies = TTN_FREQS
         elif ttn_config.country == "AU":
-            from ttn_au import TTN_FREQS
+            from lib.ttn_au import TTN_FREQS
             self._frequencies = TTN_FREQS
         elif ttn_config.country == "EU":
-            from ttn_eu import TTN_FREQS
+            from lib.ttn_eu import TTN_FREQS
             self._frequencies = TTN_FREQS
         else:
             raise TypeError("Country Code Incorrect/Unsupported")
@@ -199,10 +200,10 @@ class uLoRa:
         lora_pkt[8] = self._fport
         # Set length of LoRa packet
         lora_pkt_len = 9
-        print("PHYPayload", ubinascii.hexlify(lora_pkt))
+        self.debug and print("PHYPayload", ubinascii.hexlify(lora_pkt))
         # FRMPayload - MAC Frame Payload Encryption
         lora_pkt[lora_pkt_len:lora_pkt_len+data_length] = enc_data[0:data_length]
-        print("PHYPayload with FRMPayload", ubinascii.hexlify(lora_pkt))
+        self.debug and print("PHYPayload with FRMPayload", ubinascii.hexlify(lora_pkt))
         # Recalculate packet length
         lora_pkt_len += data_length
         # Calculate Message Integrity Code (MIC)
@@ -213,7 +214,7 @@ class uLoRa:
         lora_pkt[lora_pkt_len:lora_pkt_len+4] = mic[0:4]
         # Recalculate packet length (add MIC length)
         lora_pkt_len += 4
-        print("PHYPayload with FRMPayload + MIC", ubinascii.hexlify(lora_pkt))
+        self.debug and print("PHYPayload with FRMPayload + MIC", ubinascii.hexlify(lora_pkt))
         self.send_packet(lora_pkt, lora_pkt_len, timeout)
 
     def send_packet(self, lora_packet, packet_length, timeout):

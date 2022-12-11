@@ -1,5 +1,6 @@
 from micropython import const
-from ulora import TTN, uLoRa
+import ujson
+from lib.ulora import TTN, uLoRa
 
 _LORA_IRQ = const(20) # DIO0
 _LORA_RST = const(21) # RESET
@@ -16,5 +17,6 @@ class LoRaCommunication:
         )
 
     def send(self, data):
+        data = ujson.dumps(data, separators=(',', ':')).encode('utf8')
         self.lora.send_data(data, len(data), self.lora.frame_counter)
         self.lora.frame_counter += 1

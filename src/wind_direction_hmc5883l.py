@@ -23,7 +23,7 @@ class WindDirectionHMC5883L:
         self.yb = yb
 
         self.samples = []
-        self.thread = _thread.start_new_thread(lambda: self.sampler, (,))
+        self.thread = _thread.start_new_thread(lambda: self.sampler, ())
 
     def calibrate(self):
         # self.sampling_rate_hz
