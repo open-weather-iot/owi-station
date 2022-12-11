@@ -7,9 +7,6 @@ from util.bus import SPI, I2C
 from util.lora_communication import LoRaCommunication
 import lora_params
 
-from util.wifi_communication import WiFiCommunication
-import wifi_params
-
 from src.sys_stats import SYSStats
 from src.humidity_hdc1080 import HumidityHDC1080
 from src.pressure_bme680 import PressureBME680
@@ -32,7 +29,6 @@ def main():
     read_interval_ms = 1000
 
     lora = LoRaCommunication(SPI(port='INTERNAL_RFM95W'), device_addr=lora_params.device_addr, network_key=lora_params.network_key, app_key=lora_params.app_key)
-    #wifi = WiFiCommunication(ssid=wifi_params.ssid, password=wifi_params.password)
 
     sensors = {
         'SYS': SYSStats(),
@@ -78,7 +74,6 @@ def main():
                 readings[f'{name}/{metric}'] = value
 
         lora.send(readings)
-        #wifi.send(readings)
         print(readings)
 
         led_internal.toggle() # internal led toggle
