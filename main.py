@@ -3,6 +3,8 @@ from machine import Pin
 import micropython
 
 from util.bus import SPI, I2C
+from util.fast_sampling import FastSampling
+from util.has_method import has_method
 
 from util.lora_communication import LoRaCommunication
 import lora_params
@@ -15,13 +17,10 @@ from src.wind_direction_hmc5883l import WindDirectionHMC5883L
 from src.wind_speed_hmc5883l import WindSpeedHMC5883L
 
 
-def has_method(o, name):
-    return callable(getattr(o, name, None))
-
 def main():
-    # ---------------------------------------
-    # ------------- SETUP    ----------------
-    # ---------------------------------------
+    # ------------------------------------
+    # ------------    SETUP   ------------
+    # ------------------------------------
     #reset_pin     = Pin(0, Pin.IN, Pin.PULL_DOWN)
     #calibrate_pin = Pin(0, Pin.IN, Pin.PULL_DOWN)
     led_internal  = Pin('LED', Pin.OUT, value=1)
@@ -35,8 +34,8 @@ def main():
         #'HDC1080': HumidityHDC1080(I2C(bus=0)),
         #'BME680': PressureBME680(I2C(bus=0)),
         #'PT100': TemperaturePT100MAX31865(SPI(port='INTERNAL_MAX31865')),
-        #'HMC5883L/0': WindDirectionHMC5883L(I2C(bus=0)),
-        #'HMC5883L/1': WindSpeedHMC5883L(I2C(bus=0)),
+        #'HMC5883L/0': FastSampling(WindDirectionHMC5883L(I2C(bus=0))),
+        #'HMC5883L/1': FastSampling(WindSpeedHMC5883L(I2C(bus=0))),
     }
 
     def reset(_):
@@ -57,26 +56,35 @@ def main():
         if has_method(sensor, 'setup'):
             sensor.setup()
 
-    # ---------------------------------------
-    # -------------   LOOP   ----------------
-    # ---------------------------------------
+    # ------------------------------------
+    # ------------    LOOP    ------------
+    # ------------------------------------
     while True:
-        readings = {}
+        measurements = {}
+        errors = []
 
         for (name, sensor) in sensors.items():
             try:
-                sensor_reading = sensor.read()
+                result = sensor.read()
+                if isinstance(sensor, FastSampling):
+                    sensor_measurements, sensor_errors = result
+                    for i in sensor_errors:
+                        errors.append(err_msg)
+                else:
+                    sensor_measurements = result
             except Exception as e:
-                print(f'got error `{type(e).__name__}: {e}` while reading `{name}`')
+                err_msg = f'got error `{type(e).__name__}: {e}` while sampling sensor `{name}`'
+                errors.append(err_msg)
                 continue
 
-            for (metric, value) in sensor_reading.items():
-                readings[f'{name}/{metric}'] = value
+            for (metric, value) in sensor_measurements.items():
+                measurements[f'{name}/{metric}'] = value
 
-        lora.send(readings)
-        print(readings)
+        pkt = { 'measurements': measurements, 'errors': errors }
+        print(pkt)
+        lora.send(pkt)
 
-        led_internal.toggle() # internal led toggle
+        led_internal.toggle()
         time.sleep_ms(read_interval_ms)
 
 if __name__ == "__main__":

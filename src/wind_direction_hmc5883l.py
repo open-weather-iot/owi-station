@@ -1,6 +1,4 @@
-import time
 import math
-import _thread
 
 from lib.hmc5883l import HMC5883L
 
@@ -22,19 +20,15 @@ class WindDirectionHMC5883L:
         self.xb = xb
         self.yb = yb
 
-        self.samples = []
-        self.thread = _thread.start_new_thread(lambda: self.sampler, ())
-
     def calibrate(self):
         # self.sampling_rate_hz
         self.sensor.calibrate()
 
-    def sampler(self):
-        while True:
-            self.samples.append(self._read())
-            time.sleep_ms(math.ceil(1000 / self.sampling_rate_hz))
+    @staticmethod
+    def reducer(samples):
+        return {}
 
-    def _read(self):
+    def read(self):
         x, y, _z = sensor.read()
         x = x * self.xs + self.xb
         y = y * self.ys + self.yb
@@ -45,8 +39,3 @@ class WindDirectionHMC5883L:
             #'status': status,
             'wind_direction': { 'raw' : { 'x': x, 'y': y, 'degrees': degrees, 'declination': self.declination }, 'value': corrected_degrees, 'unit': 'º' },
         }
-
-    def read(self):
-        samples = self.samples
-        self.samples = []
-        return samples
