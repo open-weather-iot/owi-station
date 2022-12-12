@@ -1,7 +1,4 @@
-import machine
-from machine import Pin
-from machine import SPI as _SPI
-from machine import I2C as _I2C
+from machine import Pin, SPI as _SPI, I2C as _I2C
 
 # reference: https://docs.micropython.org/en/latest/library/machine.SPI.html
 class SPI:
