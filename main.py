@@ -66,12 +66,12 @@ def main():
         for (name, sensor) in sensors.items():
             try:
                 result = sensor.read()
-                if isinstance(sensor, FastSampling):
-                    sensor_measurements, sensor_errors = result
-                    for i in sensor_errors:
-                        errors.append(err_msg)
-                else:
-                    sensor_measurements = result
+                #if isinstance(sensor, FastSampling):
+                #    sensor_measurements, sensor_errors = result
+                #    for i in sensor_errors:
+                #        errors.append(err_msg)
+                #else:
+                sensor_measurements = result
             except Exception as e:
                 err_msg = f'got error `{type(e).__name__}: {e}` while sampling sensor `{name}`'
                 errors.append(err_msg)
