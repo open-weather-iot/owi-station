@@ -61,7 +61,9 @@ class TemperaturePT100MAX31865:
         raw = self._get_raw()
         temperature, resistance = self._RawToTemp(raw)
 
-        status = self._get_status(raw)  
+        status = self._get_status(raw)
+        if status != 'OK':
+            raise Exception(status)
 
         return {
             #'status': status,

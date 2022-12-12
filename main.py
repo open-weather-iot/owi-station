@@ -3,7 +3,7 @@ from machine import Pin
 import micropython
 
 from util.bus import SPI, I2C
-from util.fast_sampling import FastSampling
+#from util.fast_sampling import FastSampling
 from util.has_method import has_method
 
 from util.lora_communication import LoRaCommunication
@@ -25,7 +25,7 @@ def main():
     #calibrate_pin = Pin(0, Pin.IN, Pin.PULL_DOWN)
     led_internal  = Pin('LED', Pin.OUT, value=1)
 
-    read_interval_ms = 1000
+    read_interval_ms = 1_000
 
     lora = LoRaCommunication(SPI(port='INTERNAL_RFM95W'), device_addr=lora_params.device_addr, network_key=lora_params.network_key, app_key=lora_params.app_key)
 
@@ -88,4 +88,7 @@ def main():
         time.sleep_ms(read_interval_ms)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f'got error `{type(e).__name__}: {e}` on main')
