@@ -168,6 +168,8 @@ class uLoRa:
     def send_data(self, data, data_length, frame_counter, timeout=2):
         """ Function to assemble and send data.
         """
+        self.debug and print(f'data_length {data_length} (limit 242)')
+        assert data_length <= 242, 'payload overflows the 242 bytes size limit'
         # Data packet
         enc_data = bytearray(data_length)
         lora_pkt = bytearray(64)
@@ -220,6 +222,8 @@ class uLoRa:
     def send_packet(self, lora_packet, packet_length, timeout):
         """ Sends a LoRa packet using the SX1276 module.
         """
+        self.debug and print(f'packet_length {packet_length} (limit 255)')
+        assert packet_length <= 255, 'packet overflows the 255 bytes size limit'
         # Set SX1276 to standby
         self._write_u8(_REG_OPERATING_MODE, _MODE_LORA | _MODE_STDBY)
         # Wait for SX1276 to enter standby mode

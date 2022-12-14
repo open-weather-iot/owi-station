@@ -1,4 +1,4 @@
-import time
+import utime as time
 import math
 
 from lib.hmc5883l import HMC5883L
@@ -9,7 +9,8 @@ _STICK_LENGTH_METERS = 0.096
 class WindSpeedHMC5883L:
     # sampling_rate_hz = [0.75, 1.5, 3, 7.5, 15, 30, 75]
     def __init__(self, i2c_bus, *, sampling_rate_hz='75', xs=1, ys=1, xb=0, yb=0):
-        self.sensor = HMC5883L(i2c_bus, averaged_samples='1', sampling_rate_hz=sampling_rate_hz, gauss='1.3')
+        self.sensor = None
+        self.i2c_bus = i2c_bus
         self.sampling_rate_hz = sampling_rate_hz
 
         self.previous_degrees = 0
@@ -21,15 +22,21 @@ class WindSpeedHMC5883L:
         self.xb = xb
         self.yb = yb
 
+    def reset(self):
+        self.sensor = None
+
     def calibrate(self):
         # self.sampling_rate_hz
         self.sensor.calibrate()
 
     @staticmethod
     def reducer(samples):
-        return {}
+        return samples[0]
 
     def read(self):
+        if self.sensor == None:
+            self.sensor = HMC5883L(self.i2c_bus, averaged_samples='1', sampling_rate_hz=self.sampling_rate_hz, gauss='1.3')
+
         previous_degrees = self.previous_degrees
         tZ = self.tZ
         tA = time.ticks_ms()
@@ -52,5 +59,5 @@ class WindSpeedHMC5883L:
 
         return {
             #'status': status,
-            'wind_speed': { 'raw' : { 'x': x, 'y': y, 'previous_degrees': previous_degrees, 'degrees': degrees, 'tZ': tZ, 'tA': tA, 'length': _STICK_LENGTH_METERS }, 'value': windSpeedMS, 'unit': 'm/s' },
+            'wind_speed': { 'raw': { 'x': x, 'y': y, 'previous_degrees': previous_degrees, 'degrees': degrees, 'tZ': tZ, 'tA': tA, 'length': _STICK_LENGTH_METERS }, 'value': windSpeedMS, 'unit': 'm/s' },
         }

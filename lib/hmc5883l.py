@@ -44,7 +44,7 @@ class HMC5883L:
         self.i2c = i2c
 
         # Initialize sensor.
-        i2c.start()
+        #i2c.start()
 
         # Configuration register A:
         #   0bxSSRRRMM  -> SS (averaged samples per measurement), RRR (sampling rate), MM (measurement mode)
@@ -56,7 +56,7 @@ class HMC5883L:
 
         # Set mode register to continuous mode
         i2c.writeto_mem(_HMC5883L_ADDR, _HMC5883L_MODE_REG, pack('B', _HMC5883L_CONTINUOUS_MODE))
-        i2c.stop()
+        #i2c.stop()
 
         # Reserve some memory for the raw xyz measurements
         self.data = array('B', [0] * 6)
@@ -102,7 +102,7 @@ class HMC5883L:
 
         return x, y, z
 
-    def heading(self, x, y, declination=(0,0)):
+    def heading(self, x, y, declination=0):
         heading_rad = math.atan2(y, x)
         heading_rad += declination
 

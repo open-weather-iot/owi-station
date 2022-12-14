@@ -42,10 +42,17 @@ class TemperaturePT100MAX31865:
       
     def __init__(self, spi_bus, *, wires_pt100=4):
         self.spi_bus = spi_bus
+        self.wires_pt100 = wires_pt100
 
+        self.reset()
+
+        self.RefR = 424.0                         # Rref measured with multimeter on MAX31865. *May be different a little different for other boards
+        self.R0  = 100.0                          # Resistance for 0ºC
+
+    def reset(self):
         # set configuration register
         config = self.MAX31865_CONFIG_BIAS_ON + self.MAX31865_CONFIG_AUTO + self.MAX31865_CONFIG_CLEAR_FAULT + self.MAX31865_CONFIG_50HZ_FILTER
-        if (wires_pt100 == 3):
+        if self.wires_pt100 == 3:
             config = config + self.MAX31865_CONFIG_3WIRE
 
         buf = bytearray(2)
@@ -53,9 +60,6 @@ class TemperaturePT100MAX31865:
         buf[1] = config
         with self.spi_bus as spi:
             spi.write(buf) # write config
-
-        self.RefR = 424.0                         # Rref measured with multimeter on MAX31865. *May be different a little different for other boards
-        self.R0  = 100.0                          # Resistance for 0ºC
 
     def read(self):
         raw = self._get_raw()
@@ -67,7 +71,7 @@ class TemperaturePT100MAX31865:
 
         return {
             #'status': status,
-            'temperature': { 'raw' : { 'adc': raw, 'resistance': resistance }, 'value': temperature, 'unit': 'ºC' },
+            'temperature': { 'raw': { 'adc': raw, 'resistance': resistance }, 'value': temperature, 'unit': 'ºC' },
         }
 
     def _get_status(self,raw):      

@@ -10,11 +10,11 @@ class FastSampling:
         self.sensor = sensor
         assert has_method(self.sensor, 'read'), 'sensor should have the method `read`'
 
-        if type(sampling_rate_hz) is int:
-            self.sampling_rate_hz = sampling_rate_hz
+        if type(sampling_rate_hz) is str:
+            self.sampling_rate_hz = float(sampling_rate_hz)
         else:
-            assert type(sensor.sampling_rate_hz) is int, 'if FastSampling parameter `sampling_rate_hz` is not given, then the sensor should have the property `sampling_rate_hz` of type int'
-            self.sampling_rate_hz = sensor.sampling_rate_hz
+            assert type(sensor.sampling_rate_hz) is str, 'if FastSampling parameter `sampling_rate_hz` is not given, then the sensor should have the property `sampling_rate_hz` of type str'
+            self.sampling_rate_hz = float(sensor.sampling_rate_hz)
 
         if callable(reducer):
             self.reducer = reducer
@@ -26,6 +26,10 @@ class FastSampling:
         self.errors = []
         self.thread = _thread.start_new_thread(lambda: self.sample(), [])
 
+    def reset(self):
+        if has_method(self.sensor, 'reset'):
+            self.sensor.reset()
+
     def sample(self):
         while True:
             try:
@@ -33,7 +37,8 @@ class FastSampling:
                 self.samples.append(sensor_measurements)
             except Exception as e:
                 err_msg = f'got error `{type(e).__name__}: {e}` while fast sampling sensor'
-                self.errors.append(err_msg)
+                if err_msg not in self.errors:
+                    self.errors.append(err_msg)
 
             time.sleep_ms(math.ceil(1000 / self.sampling_rate_hz))
 

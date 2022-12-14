@@ -1,5 +1,5 @@
 from micropython import const
-from time import sleep
+from utime import sleep
 
 
 _HDC1080_ADDR = const(0x40)
