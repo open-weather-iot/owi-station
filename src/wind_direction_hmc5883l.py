@@ -25,13 +25,9 @@ class WindDirectionHMC5883L:
     def reset(self):
         self.sensor = None
 
-    def calibrate(self):
-        # self.sampling_rate_hz
-        self.sensor.calibrate()
-
-    @staticmethod
-    def reducer(samples):
-        return samples[0]
+    #def calibrate(self):
+    #    # self.sampling_rate_hz
+    #    self.sensor.calibrate()
 
     def read(self):
         if self.sensor == None:

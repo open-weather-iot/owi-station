@@ -1,6 +1,5 @@
 import utime as time
 from machine import Pin
-import micropython
 
 from util.bus import SPI, I2C
 from util.fast_sampling import FastSampling
@@ -23,7 +22,6 @@ def main():
     # ------------------------------------
     print('starting...')
 
-    #calibrate_pin = Pin(0, Pin.IN, Pin.PULL_DOWN)
     led_internal  = Pin('LED', Pin.OUT, value=1)
 
     read_interval_ms = 1_000
@@ -42,13 +40,6 @@ def main():
     def reset(sensor):
         if has_method(sensor, 'reset'):
             sensor.reset()
-
-    def calibrate(_):
-        for sensor in sensors.values():
-            if has_method(sensor, 'calibrate'):
-                sensor.calibrate()
-
-    #calibrate_pin.irq(handler=lambda _: micropython.schedule(calibrate, None), trigger=Pin.IRQ_HIGH_LEVEL)
 
     # inicialização de cada sensor (se o método setup existe)
     for sensor in sensors.values():

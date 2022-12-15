@@ -28,7 +28,7 @@ class FastSampling:
         self.samples = []
         self.errors = []
         FastSampling.thread_running = True
-        FastSampling.thread = _thread.start_new_thread(self.sample, [])
+        FastSampling.thread = _thread.start_new_thread(self._sample, [])
 
     @staticmethod
     def stop_thread():
@@ -38,7 +38,7 @@ class FastSampling:
         if has_method(self.sensor, 'reset'):
             self.sensor.reset()
 
-    def sample(self):
+    def _sample(self):
         while FastSampling.thread_running:
             try:
                 sensor_measurements = self.sensor.read()

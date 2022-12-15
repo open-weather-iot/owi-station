@@ -44,12 +44,13 @@ class TemperaturePT100MAX31865:
         self.spi_bus = spi_bus
         self.wires_pt100 = wires_pt100
 
-        self.reset()
-
         self.RefR = 424.0                         # Rref measured with multimeter on MAX31865. *May be different a little different for other boards
         self.R0  = 100.0                          # Resistance for 0ºC
 
     def reset(self):
+        self.setup()
+
+    def setup(self):
         # set configuration register
         config = self.MAX31865_CONFIG_BIAS_ON + self.MAX31865_CONFIG_AUTO + self.MAX31865_CONFIG_CLEAR_FAULT + self.MAX31865_CONFIG_50HZ_FILTER
         if self.wires_pt100 == 3:

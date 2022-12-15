@@ -25,12 +25,13 @@ class WindSpeedHMC5883L:
     def reset(self):
         self.sensor = None
 
-    def calibrate(self):
-        # self.sampling_rate_hz
-        self.sensor.calibrate()
+    #def calibrate(self):
+    #    # self.sampling_rate_hz
+    #    self.sensor.calibrate()
 
     @staticmethod
     def reducer(samples):
+        # TODO
         return samples[0]
 
     def read(self):
