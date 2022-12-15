@@ -92,4 +92,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
+        FastSampling.stop_thread()
         print(f'got error `{type(e).__name__}: {e}` on main')

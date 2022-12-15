@@ -6,6 +6,9 @@ from util.has_method import has_method
 
 
 class FastSampling:
+    thread = None
+    thread_running = False
+
     def __init__(self, sensor, *, reducer=None, sampling_rate_hz=None):
         self.sensor = sensor
         assert has_method(self.sensor, 'read'), 'sensor should have the method `read`'
@@ -24,14 +27,19 @@ class FastSampling:
 
         self.samples = []
         self.errors = []
-        self.thread = _thread.start_new_thread(lambda: self.sample(), [])
+        FastSampling.thread_running = True
+        FastSampling.thread = _thread.start_new_thread(self.sample, [])
+
+    @staticmethod
+    def stop_thread():
+        FastSampling.thread_running = False
 
     def reset(self):
         if has_method(self.sensor, 'reset'):
             self.sensor.reset()
 
     def sample(self):
-        while True:
+        while FastSampling.thread_running:
             try:
                 sensor_measurements = self.sensor.read()
                 self.samples.append(sensor_measurements)
